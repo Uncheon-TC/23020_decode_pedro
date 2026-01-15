@@ -1,15 +1,14 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.auto_cal;
+
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.BLUE_GOAL;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.RED_GOAL;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.TICKS_PER_REV_SHOOTER;
 
 import com.pedropathing.geometry.Pose;
 
 public class Turret_Tracking {
     public Turret_Tracking() {}
-
-    private final double TICKS_PER_REV = 103.8;
     private final double GEAR_RATIO = 105.0/25.0;
-
-    private final Pose RED_GOAL = new Pose(130, 135, 0);
-    private final Pose BLUE_GOAL = new Pose(14, 130, 0);
 
     public int fix_to_goal_RED(Pose robot_pos) {
         double dy = RED_GOAL.getY() - robot_pos.getY();
@@ -33,7 +32,7 @@ public class Turret_Tracking {
             Rad += 2 * Math.PI;
         }
 
-        double ticks = (Rad / (2 * Math.PI)) * TICKS_PER_REV * GEAR_RATIO;
+        double ticks = (Rad / (2 * Math.PI)) * TICKS_PER_REV_SHOOTER * GEAR_RATIO;
 
         return (int) ticks;
     }

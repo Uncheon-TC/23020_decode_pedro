@@ -59,7 +59,7 @@ public class turrert_pid extends OpMode {
         telemetry.addData("target deg: ", target_deg);
         telemetry.addData("error deg: ", target_deg - current_deg);
         telemetry.addData("target tick: ", target_tick);
-        telemetry.addData("error tick: ", target_tick- controller.getError());
+        telemetry.addData("error tick: ", target_tick - controller.getError());
         telemetry.update();
     }
 }
