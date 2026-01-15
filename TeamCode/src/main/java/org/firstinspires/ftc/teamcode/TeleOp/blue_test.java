@@ -74,6 +74,9 @@ public class blue_test extends LinearOpMode {
         SA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         SA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        SL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        SR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         eat.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         SR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
