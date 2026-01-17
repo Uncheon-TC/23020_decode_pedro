@@ -1,12 +1,17 @@
 package org.firstinspires.ftc.teamcode.config;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.Sorter;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Configurable
 
@@ -33,9 +38,16 @@ public class config_turrert_pid extends OpMode {
 
     DcMotor SA;
 
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    private ElapsedTime timer;
+
 
     @Override
     public void init() {
+
+        dashboard = FtcDashboard.getInstance();
+        timer = new ElapsedTime();
+
         pidfCoefficients = new PIDFCoefficients(p,i,d,f);
         controller = new PIDFController(pidfCoefficients);
 
@@ -49,7 +61,14 @@ public class config_turrert_pid extends OpMode {
     }
 
     @Override
+    public void start() {
+        timer.reset();
+    }
+
+    @Override
     public void loop() {
+
+        TelemetryPacket packet = new TelemetryPacket();
 
         if (p != lastP || i != lastI || d != lastD || f != lastF) {
             PIDFCoefficients coeffs = new PIDFCoefficients(p, i, d, f);
@@ -70,6 +89,11 @@ public class config_turrert_pid extends OpMode {
         motor_power = controller.run();
 
         SA.setPower(motor_power);
+
+        packet.put("target deg", target_deg);
+        packet.put("current deg", current_deg);
+
+        dashboard.sendTelemetryPacket(packet);
 
         telemetry.addData("target deg: ", target_deg);
         telemetry.addData("error deg: ", target_deg - current_deg);
