@@ -10,6 +10,10 @@ import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_HEIGH
 import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.TICKS_PER_REV_SHOOTER;
 import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.WHEEL_RADIUS;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.config.GoBildaPinpointDriver;
+
 import static java.lang.Math.round;
 
 import com.pedropathing.follower.Follower;
@@ -42,6 +46,8 @@ public class blue_test extends LinearOpMode {
     private Follower follower;
     private final Pose startPose = new Pose(72,72,90);
 
+    GoBildaPinpointDriver odo;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -66,6 +72,12 @@ public class blue_test extends LinearOpMode {
         SL  = hardwareMap.dcMotor.get("SL");
         SR  = hardwareMap.dcMotor.get("SR");
         SA = hardwareMap.dcMotor.get("SA");
+
+        odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+        odo.setOffsets(-12, -5);  //cm?
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         eat.setDirection(DcMotorSimple.Direction.FORWARD);
         SL.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -92,7 +104,7 @@ public class blue_test extends LinearOpMode {
         servo_hood = hardwareMap.servo.get("servo_H");
         servo_hood.setPosition(0.5);  //기본위치 찾기
 
-        imu = hardwareMap.get(IMU.class, "imu");
+        /*imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
                         RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
@@ -100,13 +112,18 @@ public class blue_test extends LinearOpMode {
                 )
         );
 
-        imu.initialize(parameters);
+        imu.initialize(parameters);*/
+
+        odo.recalibrateIMU();
 
        follower.setPose(center);
 
         waitForStart();
 
+
         while (opModeIsActive()) {
+
+            odo.update();
 
             follower.update(); //current robot pose update
             Pose current_robot_pos = follower.getPose();  //save to Pose
@@ -120,13 +137,16 @@ public class blue_test extends LinearOpMode {
 
             if (gamepad1.options) {
                 imu.resetYaw();
+                odo.recalibrateIMU();
             }
 
-            double botHeading = imu.getRobotYawPitchRollAngles()
-                    .getYaw(AngleUnit.RADIANS);
+            /*double botHeading = imu.getRobotYawPitchRollAngles()
+                    .getYaw(AngleUnit.RADIANS);*/
 
-            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+            double botHeading_pin = odo.getHeading();
+
+            double rotX = x * Math.cos(-botHeading_pin) - y * Math.sin(-botHeading_pin);
+            double rotY = x * Math.sin(-botHeading_pin) + y * Math.cos(-botHeading_pin);
 
             rotX *= 1.1;
 
