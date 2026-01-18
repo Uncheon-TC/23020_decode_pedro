@@ -97,18 +97,23 @@ public class config_turrert_pid extends OpMode {
 
         //dashboard.sendTelemetryPacket(packet);
 
-        double_telemetry("target deg: ", target_deg);
-        double_telemetry("error deg: ", target_deg - current_deg);
-        double_telemetry("target tick: ", target_tick);
-        double_telemetry("error tick: ", controller.getError());
+        panelsTelemetry.addData("target deg: ", target_deg);
+        panelsTelemetry.addData("error deg: ", target_deg - current_deg);
+        panelsTelemetry.addData("target tick: ", target_tick);
+        panelsTelemetry.addData("error tick: ", controller.getError());
         telemetry.addLine();
-        double_telemetry("p: ", p);
-        double_telemetry("i: ", i);
-        double_telemetry("d: ", d);
-        double_telemetry_update();
+        panelsTelemetry.addData("p: ", p);
+        panelsTelemetry.addData("i: ", i);
+        panelsTelemetry.addData("d: ", d);
+        panelsTelemetry.update();
     }
 
     private void double_telemetry(String caption, Object value) {
+        telemetry.addData(caption, value);
+        panelsTelemetry.addData(caption, value);
+    }
+
+    private void double_telemetry(String caption, double value) {
         telemetry.addData(caption, value);
         panelsTelemetry.addData(caption, value);
     }
