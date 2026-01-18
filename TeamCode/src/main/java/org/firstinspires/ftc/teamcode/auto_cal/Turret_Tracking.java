@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.auto_cal;
 
 import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_GOAL;
 import static org.firstinspires.ftc.teamcode.sub_const.pos_const.RED_GOAL;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.TICKS_PER_REV_SHOOTER;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SHOOTER_ANGLE_TPR;
 
 import com.pedropathing.geometry.Pose;
 
@@ -32,7 +32,7 @@ public class Turret_Tracking {
             Rad += 2 * Math.PI;
         }
 
-        double ticks = (Rad / (2 * Math.PI)) * TICKS_PER_REV_SHOOTER * GEAR_RATIO;
+        double ticks = (Rad / (2 * Math.PI)) * SHOOTER_ANGLE_TPR * GEAR_RATIO;
 
         return (int) ticks;
     }

@@ -1,11 +1,18 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
 import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_GOAL;
-
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
-
-import org.firstinspires.ftc.teamcode.config.GoBildaPinpointDriver;
-
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MAX_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MIN_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MAX;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MIN;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_HEIGHT;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.FLYWHEEL_TPR;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.WHEEL_RADIUS;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_d;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_f;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_i;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_p;
 import static java.lang.Math.round;
 
 import com.pedropathing.control.PIDFCoefficients;
@@ -16,18 +23,19 @@ import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.auto_cal.Turret_Tracking;
 import org.firstinspires.ftc.teamcode.auto_cal.shooter;
+import org.firstinspires.ftc.teamcode.config.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-import org.firstinspires.ftc.teamcode.auto_cal.Turret_Tracking;
-
 @TeleOp(name = "decode 23020_BLUE", group = "2024-2025 Test OP")
-public class blue_test extends LinearOpMode {
+public class blue_test_without_momentom extends LinearOpMode {
 
     private DcMotor FrontLeftMotor, FrontRightMotor, BackLeftMotor, BackRightMotor; //메카넘
     private DcMotor eat, SL, SR, SA;
@@ -46,6 +54,7 @@ public class blue_test extends LinearOpMode {
     private PIDFCoefficients pidfCoefficients;
     private double motor_power;
     private int finalTurretAngle;
+    private double StaticTargetPosTicks;
 
     GoBildaPinpointDriver odo;
 
@@ -176,11 +185,11 @@ public class blue_test extends LinearOpMode {
 
             if (result != null) {
 
-                double StaticTargetPosTicks = tracking.fix_to_goal_BLUE(current_robot_pos);
+                StaticTargetPosTicks = tracking.fix_to_goal_BLUE(current_robot_pos);
 
-                double offsetTicks = (result.turretOffset / (2 * Math.PI)) * SHOOTER_ANGLE_TPR * (105.0/25.0);
+                //double offsetTicks = (result.turretOffset / (2 * Math.PI)) * FLYWHEEL_TPR * (105.0/25.0);
 
-                finalTurretAngle = (int) round(StaticTargetPosTicks + offsetTicks);
+                //finalTurretAngle = (int) round(StaticTargetPosTicks + offsetTicks);
 
                 double clampedAngle = Range.clip(result.hoodAngle, HOOD_MIN_ANGLE, HOOD_MAX_ANGLE);
                 double hood_servo_pos = mapAngleToServo(clampedAngle);
@@ -188,7 +197,7 @@ public class blue_test extends LinearOpMode {
                 servo_hood.setPosition(hood_servo_pos);
 
                 //터렛 pid 계산
-                controller.setTargetPosition(finalTurretAngle);
+                controller.setTargetPosition(StaticTargetPosTicks);
 
                 double currentPos = SA.getCurrentPosition();
                 controller.updatePosition(currentPos);
@@ -202,11 +211,11 @@ public class blue_test extends LinearOpMode {
             if (gamepad1.a && result != null) {
                 double targetMotorVelocity = velocityToTicks(result.launchSpeed);
 
-                ((com.qualcomm.robotcore.hardware.DcMotorEx) SL).setVelocity(targetMotorVelocity);
-                ((com.qualcomm.robotcore.hardware.DcMotorEx) SR).setVelocity(targetMotorVelocity);
+                ((DcMotorEx) SL).setVelocity(targetMotorVelocity);
+                ((DcMotorEx) SR).setVelocity(targetMotorVelocity);
             } else {
-                ((com.qualcomm.robotcore.hardware.DcMotorEx) SL).setVelocity(0);
-                ((com.qualcomm.robotcore.hardware.DcMotorEx) SR).setVelocity(0);
+                ((DcMotorEx) SL).setVelocity(0);
+                ((DcMotorEx) SR).setVelocity(0);
             }
 
 
@@ -217,7 +226,7 @@ public class blue_test extends LinearOpMode {
             telemetry.addData("Servo_S Pos", servo_S.getPosition());
             /*telemetry.addData("Heading (deg)",
                     imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));*/
-            telemetry.addData("target encoder", finalTurretAngle);
+            telemetry.addData("target encoder", StaticTargetPosTicks);
             telemetry.addData("current encoder", SA.getCurrentPosition());
             telemetry.update();
         }
