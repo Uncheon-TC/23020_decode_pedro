@@ -35,7 +35,7 @@ public class blue_test extends LinearOpMode {
     private IMU imu;
     Turret_Tracking tracking = new Turret_Tracking();
     private Follower follower;
-    private final Pose startPose = new Pose(72,72,90);
+    private final Pose startPose = new Pose(72,72,Math.toRadians(90));
     private double sta_p = shooter_p;
     private double sta_i = shooter_i;
     private double sta_d = shooter_d;
@@ -47,7 +47,7 @@ public class blue_test extends LinearOpMode {
     private double motor_power;
     private int finalTurretAngle;
 
-    GoBildaPinpointDriver odo;
+    //GoBildaPinpointDriver odo;
 
 
     @Override
@@ -77,11 +77,11 @@ public class blue_test extends LinearOpMode {
         SR  = hardwareMap.dcMotor.get("SR");
         SA = hardwareMap.dcMotor.get("SA");
 
-        odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        /*odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         odo.setOffsets(-12, -5);  //cm?
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                GoBildaPinpointDriver.EncoderDirection.FORWARD);*/
 
         eat.setDirection(DcMotorSimple.Direction.FORWARD);
         SL.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -92,8 +92,8 @@ public class blue_test extends LinearOpMode {
 
         SA.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        SL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        SR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //SL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //SR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         eat.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -120,16 +120,18 @@ public class blue_test extends LinearOpMode {
 
         imu.initialize(parameters);*/
 
-        odo.recalibrateIMU();
+       // odo.recalibrateIMU();
 
-       follower.setPose(center);
+       //follower.setPose(center);
+
+        double sp = 0;
 
         waitForStart();
 
 
         while (opModeIsActive()) {
 
-            odo.update();
+            //odo.update();
 
             follower.update(); //current robot pose update
             Pose current_robot_pos = follower.getPose();  //save to Pose
@@ -142,14 +144,14 @@ public class blue_test extends LinearOpMode {
             double slow = 1 - (0.8 * gamepad1.right_trigger);
 
             if (gamepad1.options) {
-                imu.resetYaw();
-                odo.recalibrateIMU();
+                //imu.resetYaw();
+                //odo.recalibrateIMU();
             }
 
             /*double botHeading = imu.getRobotYawPitchRollAngles()
                     .getYaw(AngleUnit.RADIANS);*/
 
-            double botHeading_pin = odo.getHeading();
+            double botHeading_pin = follower.getHeading();
 
             double rotX = x * Math.cos(-botHeading_pin) - y * Math.sin(-botHeading_pin);
             double rotY = x * Math.sin(-botHeading_pin) + y * Math.cos(-botHeading_pin);
@@ -169,23 +171,58 @@ public class blue_test extends LinearOpMode {
 
 
 
-            servo_S.setPosition(gamepad1.left_bumper ? 0.35 : 0.5);
+            //servo_S.setPosition(gamepad1.left_bumper ? 0.35 : 0.5);
+
+            if (gamepad1.left_bumper) {
+                servo_S.setPosition(0.35);
+                eat.setPower(1);
+            } else {
+                servo_S.setPosition(0.5);
+                eat.setPower(0);
+            }
+
+            if (gamepad1.a) {
+                eat.setPower(1);
+            }
+            if (gamepad1.b) eat.setPower(0);
+
+            /*if (gamepad1.left_bumper) {
+                servo_S.setPosition(0.35);
+                eat.setPower(1);
+            } else {
+                servo_S.setPosition(0.5);
+                eat.setPower(0);
+            }*/
+
+
+
+            if (gamepad1.dpadRightWasPressed()) sp += 0.1;
+            if (gamepad1.dpadLeftWasPressed()) sp -= 0.1;
+
+            if (gamepad1.x) {
+                SL.setPower(sp);
+                SR.setPower(sp);
+            }
+            if (gamepad1.y){
+                SL.setPower(0);
+                SR.setPower(0);
+            }
 
 
             shooter.ShotResult result = shooter.calculateShot(current_robot_pos, BLUE_GOAL, SCORE_HEIGHT, current_robot_vel, SCORE_ANGLE);
 
             if (result != null) {
 
-                double StaticTargetPosTicks = tracking.fix_to_goal_BLUE(current_robot_pos);
+                double StaticTargetPosTicks = tracking.fix_to_goal_RED(current_robot_pos);
 
-                double offsetTicks = (result.turretOffset / (2 * Math.PI)) * SHOOTER_ANGLE_TPR * (105.0/25.0);
+                //double offsetTicks = (result.turretOffset / (2 * Math.PI)) * SHOOTER_ANGLE_TPR * (105.0/25.0);
 
-                finalTurretAngle = (int) round(StaticTargetPosTicks + offsetTicks);
+                finalTurretAngle = (int) round(StaticTargetPosTicks/* + offsetTicks*/);
 
-                double clampedAngle = Range.clip(result.hoodAngle, HOOD_MIN_ANGLE, HOOD_MAX_ANGLE);
-                double hood_servo_pos = mapAngleToServo(clampedAngle);
+                //double clampedAngle = Range.clip(result.hoodAngle, HOOD_MIN_ANGLE, HOOD_MAX_ANGLE);
+                //double hood_servo_pos = mapAngleToServo(clampedAngle);
 
-                servo_hood.setPosition(hood_servo_pos);
+                //servo_hood.setPosition(hood_servo_pos);
 
                 //터렛 pid 계산
                 controller.setTargetPosition(finalTurretAngle);
@@ -199,7 +236,7 @@ public class blue_test extends LinearOpMode {
 
             }
 
-            if (gamepad1.a && result != null) {
+            /*if (gamepad1.a && result != null) {
                 double targetMotorVelocity = velocityToTicks(result.launchSpeed);
 
                 ((com.qualcomm.robotcore.hardware.DcMotorEx) SL).setVelocity(targetMotorVelocity);
@@ -207,7 +244,7 @@ public class blue_test extends LinearOpMode {
             } else {
                 ((com.qualcomm.robotcore.hardware.DcMotorEx) SL).setVelocity(0);
                 ((com.qualcomm.robotcore.hardware.DcMotorEx) SR).setVelocity(0);
-            }
+            }*/
 
 
 

@@ -20,7 +20,7 @@ public class Turret_Tracking {
     public int fix_to_goal_BLUE(Pose robot_pos) {
         double dy = BLUE_GOAL.getY() - robot_pos.getY();
         double dx = BLUE_GOAL.getX() - robot_pos.getX();
-        double target_Rad = Math.atan2(dy, dx) - robot_pos.getHeading(); //모두 rad값 반환 ㅇㅇ
+        double target_Rad = Math.toRadians(Math.atan2(dy, dx)) - robot_pos.getHeading(); //모두 rad값 반환 ㅇㅇ
         return RadToTicks(target_Rad);
     }
 

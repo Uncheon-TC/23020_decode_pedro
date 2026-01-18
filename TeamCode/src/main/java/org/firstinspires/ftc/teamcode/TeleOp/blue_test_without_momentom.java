@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_GOAL;
 import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MAX_ANGLE;
 import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MIN_ANGLE;
@@ -15,6 +16,7 @@ import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_i;
 import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_p;
 import static java.lang.Math.round;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.follower.Follower;
@@ -34,6 +36,8 @@ import org.firstinspires.ftc.teamcode.auto_cal.shooter;
 import org.firstinspires.ftc.teamcode.config.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+
+@Configurable
 @TeleOp(name = "decode 23020_BLUE", group = "2024-2025 Test OP")
 public class blue_test_without_momentom extends LinearOpMode {
 
@@ -43,10 +47,10 @@ public class blue_test_without_momentom extends LinearOpMode {
     private IMU imu;
     Turret_Tracking tracking = new Turret_Tracking();
     private Follower follower;
-    private final Pose startPose = new Pose(72,72,90);
-    private double sta_p = shooter_p;
-    private double sta_i = shooter_i;
-    private double sta_d = shooter_d;
+    private final Pose startPose = new Pose(72,72, Math.toRadians(90));
+    private static double p = 0;
+    private static double i = 0;
+    private static double d = 0;
     private double sta_f = shooter_f;
     private PIDFController controller;
     private double target_tick;
@@ -56,7 +60,9 @@ public class blue_test_without_momentom extends LinearOpMode {
     private int finalTurretAngle;
     private double StaticTargetPosTicks;
 
-    GoBildaPinpointDriver odo;
+    //GoBildaPinpointDriver odo;
+
+    private double lastP, lastI, lastD, lastF;
 
 
     @Override
@@ -68,7 +74,7 @@ public class blue_test_without_momentom extends LinearOpMode {
 
         follower.setStartingPose(startPose);
 
-        pidfCoefficients = new PIDFCoefficients(sta_p,sta_i,sta_d,sta_f);
+        pidfCoefficients = new PIDFCoefficients(p,i,d,sta_f);
         controller = new PIDFController(pidfCoefficients);
 
 
@@ -86,11 +92,11 @@ public class blue_test_without_momentom extends LinearOpMode {
         SR  = hardwareMap.dcMotor.get("SR");
         SA = hardwareMap.dcMotor.get("SA");
 
-        odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        /*odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         odo.setOffsets(-12, -5);  //cm?
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                GoBildaPinpointDriver.EncoderDirection.FORWARD);*/
 
         eat.setDirection(DcMotorSimple.Direction.FORWARD);
         SL.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -129,18 +135,28 @@ public class blue_test_without_momentom extends LinearOpMode {
 
         imu.initialize(parameters);*/
 
-        odo.recalibrateIMU();
+        //odo.recalibrateIMU();
 
-       follower.setPose(center);
+       //follower.setPose(center);
 
         waitForStart();
 
 
         while (opModeIsActive()) {
 
-            odo.update();
-
+            //follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
             follower.update(); //current robot pose update
+
+            if (p != lastP || i != lastI || d != lastD || sta_f != lastF) {
+                PIDFCoefficients coeffs = new PIDFCoefficients(p, i, d, sta_f);
+                controller.setCoefficients(coeffs);
+
+                lastP = p; lastI = i; lastD = d; lastF = sta_f;
+            }
+
+            //odo.update();
+
+
             Pose current_robot_pos = follower.getPose();  //save to Pose
             Vector current_robot_vel = follower.getVelocity();
 
@@ -151,14 +167,14 @@ public class blue_test_without_momentom extends LinearOpMode {
             double slow = 1 - (0.8 * gamepad1.right_trigger);
 
             if (gamepad1.options) {
-                imu.resetYaw();
-                odo.recalibrateIMU();
+                //imu.resetYaw();
+                //odo.recalibrateIMU();
             }
 
             /*double botHeading = imu.getRobotYawPitchRollAngles()
                     .getYaw(AngleUnit.RADIANS);*/
 
-            double botHeading_pin = odo.getHeading();
+            double botHeading_pin = follower.getHeading();
 
             double rotX = x * Math.cos(-botHeading_pin) - y * Math.sin(-botHeading_pin);
             double rotY = x * Math.sin(-botHeading_pin) + y * Math.cos(-botHeading_pin);
@@ -185,7 +201,7 @@ public class blue_test_without_momentom extends LinearOpMode {
 
             if (result != null) {
 
-                StaticTargetPosTicks = tracking.fix_to_goal_BLUE(current_robot_pos);
+                StaticTargetPosTicks = tracking.fix_to_goal_RED(current_robot_pos);
 
                 //double offsetTicks = (result.turretOffset / (2 * Math.PI)) * FLYWHEEL_TPR * (105.0/25.0);
 
@@ -220,7 +236,7 @@ public class blue_test_without_momentom extends LinearOpMode {
 
 
 
-            telemetry.addData("eat Power", eat.getPower());
+            /*telemetry.addData("eat Power", eat.getPower());
             telemetry.addData("SL Power", SL.getPower());
             telemetry.addData("SR Power", SR.getPower());
             telemetry.addData("Servo_S Pos", servo_S.getPosition());
@@ -228,6 +244,9 @@ public class blue_test_without_momentom extends LinearOpMode {
                     imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));*/
             telemetry.addData("target encoder", StaticTargetPosTicks);
             telemetry.addData("current encoder", SA.getCurrentPosition());
+            telemetry.addData("heading", Math.toDegrees(follower.getHeading()));
+            telemetry.addData("x", follower.getPose().getX());
+            telemetry.addData("y", follower.getPose().getY());
             telemetry.update();
         }
     }
