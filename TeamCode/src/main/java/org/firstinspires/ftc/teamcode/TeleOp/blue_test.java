@@ -1,14 +1,9 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import static org.firstinspires.ftc.teamcode.config.config_turrert_pid.target_deg;
 import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_GOAL;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MAX_ANGLE;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MIN_ANGLE;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MAX;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MIN;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_ANGLE;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_HEIGHT;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.TICKS_PER_REV_SHOOTER;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.WHEEL_RADIUS;
+
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -16,6 +11,8 @@ import org.firstinspires.ftc.teamcode.config.GoBildaPinpointDriver;
 
 import static java.lang.Math.round;
 
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Vector;
@@ -45,6 +42,15 @@ public class blue_test extends LinearOpMode {
     Turret_Tracking tracking = new Turret_Tracking();
     private Follower follower;
     private final Pose startPose = new Pose(72,72,90);
+    private double sta_p = shooter_p;
+    private double sta_i = shooter_i;
+    private double sta_d = shooter_d;
+    private double sta_f = shooter_f;
+    private PIDFController controller;
+    private double target_tick;
+
+    private PIDFCoefficients pidfCoefficients;
+    private double motor_power;
 
     GoBildaPinpointDriver odo;
 
@@ -57,6 +63,9 @@ public class blue_test extends LinearOpMode {
         follower = Constants.createFollower(hardwareMap);
 
         follower.setStartingPose(startPose);
+
+        pidfCoefficients = new PIDFCoefficients(sta_p,sta_i,sta_d,sta_f);
+        controller = new PIDFController(pidfCoefficients);
 
 
         FrontLeftMotor  = hardwareMap.dcMotor.get("FL");
@@ -83,8 +92,10 @@ public class blue_test extends LinearOpMode {
         SL.setDirection(DcMotorSimple.Direction.FORWARD);
         SR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        SA.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         SA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        SA.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        SA.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         SL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         SR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -161,6 +172,8 @@ public class blue_test extends LinearOpMode {
             //메카넘 끝
 
 
+
+
             servo_S.setPosition(gamepad1.left_bumper ? 0.35 : 0.5);
 
 
@@ -174,14 +187,19 @@ public class blue_test extends LinearOpMode {
 
                 int finalTurretAngle = (int) round(StaticTargetPosTicks + offsetTicks);
 
-                SA.setTargetPosition(finalTurretAngle);
-                SA.setPower(0.3); //pid 제어하면 없어질 것
-                SA.setMode(DcMotor.RunMode.RUN_TO_POSITION);  //heading to goal
-
                 double clampedAngle = Range.clip(result.hoodAngle, HOOD_MIN_ANGLE, HOOD_MAX_ANGLE);
                 double hood_servo_pos = mapAngleToServo(clampedAngle);
 
                 servo_hood.setPosition(hood_servo_pos);
+
+                //터렛 pid 계산
+                controller.setTargetPosition(finalTurretAngle);
+
+                double currentPos = SA.getCurrentPosition();
+                controller.updatePosition(currentPos);
+
+                motor_power = controller.run();
+                SA.setPower(motor_power);
 
 
             }
@@ -195,6 +213,8 @@ public class blue_test extends LinearOpMode {
                 ((com.qualcomm.robotcore.hardware.DcMotorEx) SL).setVelocity(0);
                 ((com.qualcomm.robotcore.hardware.DcMotorEx) SR).setVelocity(0);
             }
+
+
 
             telemetry.addData("eat Power", eat.getPower());
             telemetry.addData("SL Power", SL.getPower());

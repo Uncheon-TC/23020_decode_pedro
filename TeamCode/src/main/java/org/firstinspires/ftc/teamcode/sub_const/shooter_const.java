@@ -18,10 +18,11 @@ public class shooter_const {
     public static double WHEEL_RADIUS = 2.0;    //NEED ADJ
 
     //pid const
-    public static double shooter_p;
-    public static double shooter_i;
-    public static double shooter_d;
-    public static double shooter_f;
+    public static double shooter_p = 0.06;
+    public static double shooter_i = 0;
+    public static double shooter_d = 0.0005;
+    public static double shooter_f = 0;
+    public static double SHOOTER_ANGLE_TPR = 537.7;
 
     public static double flywheel_p;
     public static double flywheel_i;
