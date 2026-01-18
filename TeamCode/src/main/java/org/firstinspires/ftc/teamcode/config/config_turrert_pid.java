@@ -18,6 +18,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name = "config_turret_pid", group = "config")
 public class config_turrert_pid extends OpMode {
 
+    private TelemetryManager panelsTelemetry =  PanelsTelemetry.INSTANCE.getTelemetry();
+
     private PIDFController controller;
 @Sorter(sort = 0)
     public static double p = 0;
@@ -38,15 +40,15 @@ public class config_turrert_pid extends OpMode {
 
     DcMotor SA;
 
-    FtcDashboard dashboard = FtcDashboard.getInstance();
-    private ElapsedTime timer;
+    //FtcDashboard dashboard = FtcDashboard.getInstance();
+    private ElapsedTime timer = new ElapsedTime();
 
 
     @Override
     public void init() {
 
-        dashboard = FtcDashboard.getInstance();
-        timer = new ElapsedTime();
+        //dashboard = FtcDashboard.getInstance();
+        timer.reset();
 
         pidfCoefficients = new PIDFCoefficients(p,i,d,f);
         controller = new PIDFController(pidfCoefficients);
@@ -90,15 +92,29 @@ public class config_turrert_pid extends OpMode {
 
         SA.setPower(motor_power);
 
-        packet.put("target deg", target_deg);
-        packet.put("current deg", current_deg);
+        //packet.put("target deg", target_deg);
+        //packet.put("current deg", current_deg);
 
-        dashboard.sendTelemetryPacket(packet);
+        //dashboard.sendTelemetryPacket(packet);
 
-        telemetry.addData("target deg: ", target_deg);
-        telemetry.addData("error deg: ", target_deg - current_deg);
-        telemetry.addData("target tick: ", target_tick);
-        telemetry.addData("error tick: ", controller.getError());
+        double_telemetry("target deg: ", target_deg);
+        double_telemetry("error deg: ", target_deg - current_deg);
+        double_telemetry("target tick: ", target_tick);
+        double_telemetry("error tick: ", controller.getError());
+        telemetry.addLine();
+        double_telemetry("p: ", p);
+        double_telemetry("i: ", i);
+        double_telemetry("d: ", d);
+        double_telemetry_update();
+    }
+
+    private void double_telemetry(String caption, Object value) {
+        telemetry.addData(caption, value);
+        panelsTelemetry.addData(caption, value);
+    }
+
+    private void double_telemetry_update() {
+        panelsTelemetry.update(telemetry);
         telemetry.update();
     }
 }
