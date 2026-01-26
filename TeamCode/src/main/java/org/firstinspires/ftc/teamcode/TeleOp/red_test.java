@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_GOAL;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.*;
 
 import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
-
-import org.firstinspires.ftc.teamcode.config.GoBildaPinpointDriver;
 
 import static java.lang.Math.round;
 
@@ -16,21 +14,22 @@ import com.pedropathing.math.Vector;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.auto_cal.shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import org.firstinspires.ftc.teamcode.auto_cal.Turret_Tracking;
 
-@TeleOp(name = "decode 23020_BLUE", group = "2024-2025 Test OP")
-public class blue_test extends LinearOpMode {
+@TeleOp(name = "decode 23020_RED", group = "2024-2025 Test OP")
+public class red_test extends LinearOpMode {
 
     private DcMotor FrontLeftMotor, FrontRightMotor, BackLeftMotor, BackRightMotor; //메카넘
-    private DcMotor eat, SL, SR, SA;
+    private DcMotor eat, SA;
+    private DcMotorEx SL, SR;
     private Servo servo_S, servo_hood;
     private IMU imu;
     Turret_Tracking tracking = new Turret_Tracking();
@@ -73,8 +72,8 @@ public class blue_test extends LinearOpMode {
         FrontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         eat = hardwareMap.dcMotor.get("eat");
-        SL  = hardwareMap.dcMotor.get("SL");
-        SR  = hardwareMap.dcMotor.get("SR");
+        SL  = hardwareMap.get(DcMotorEx.class, "SL");
+        SR  = hardwareMap.get(DcMotorEx.class, "SR");
         SA = hardwareMap.dcMotor.get("SA");
 
         /*odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
@@ -84,8 +83,7 @@ public class blue_test extends LinearOpMode {
                 GoBildaPinpointDriver.EncoderDirection.FORWARD);*/
 
         eat.setDirection(DcMotorSimple.Direction.FORWARD);
-        SL.setDirection(DcMotorSimple.Direction.FORWARD);
-        SR.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         SA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         SA.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -95,13 +93,19 @@ public class blue_test extends LinearOpMode {
         //SL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //SR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        SL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        SR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        SL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        SR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        SR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+
         eat.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        SR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         eat.setPower(0);
-        SL.setPower(0);
-        SR.setPower(0);
 
 
         servo_S = hardwareMap.servo.get("servo_S");
@@ -109,6 +113,14 @@ public class blue_test extends LinearOpMode {
 
         servo_hood = hardwareMap.servo.get("servo_H");
         servo_hood.setPosition(0.5);  //기본위치 찾기
+
+
+        com.qualcomm.robotcore.hardware.PIDFCoefficients flywheel_pidfCoeffiients
+                = new com.qualcomm.robotcore.hardware
+                .PIDFCoefficients(flywheel_p, flywheel_i, flywheel_d, flywheel_f);
+
+        SL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, flywheel_pidfCoeffiients);
+        SR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, flywheel_pidfCoeffiients);
 
         /*imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(
@@ -181,10 +193,10 @@ public class blue_test extends LinearOpMode {
                 eat.setPower(0);
             }
 
-            if (gamepad1.a) {
+            if (gamepad1.x) {
                 eat.setPower(1);
             }
-            if (gamepad1.b) eat.setPower(0);
+            if (gamepad1.y) eat.setPower(0);
 
             /*if (gamepad1.left_bumper) {
                 servo_S.setPosition(0.35);
@@ -196,20 +208,20 @@ public class blue_test extends LinearOpMode {
 
 
 
-            if (gamepad1.dpadRightWasPressed()) sp += 0.1;
-            if (gamepad1.dpadLeftWasPressed()) sp -= 0.1;
+//            if (gamepad1.dpadRightWasPressed()) sp += 0.1;
+//            if (gamepad1.dpadLeftWasPressed()) sp -= 0.1;
+//
+//            if (gamepad1.x) {
+//                SL.setPower(sp);
+//                SR.setPower(sp);
+//            }
+//            if (gamepad1.y){
+//                SL.setPower(0);
+//                SR.setPower(0);
+//            }
 
-            if (gamepad1.x) {
-                SL.setPower(sp);
-                SR.setPower(sp);
-            }
-            if (gamepad1.y){
-                SL.setPower(0);
-                SR.setPower(0);
-            }
 
-
-            shooter.ShotResult result = shooter.calculateShot(current_robot_pos, BLUE_GOAL, SCORE_HEIGHT, current_robot_vel, SCORE_ANGLE);
+            shooter.ShotResult result = shooter.calculateShot(current_robot_pos, RED_GOAL, SCORE_HEIGHT, current_robot_vel, SCORE_ANGLE);
 
             if (result != null) {
 
@@ -236,15 +248,15 @@ public class blue_test extends LinearOpMode {
 
             }
 
-            /*if (gamepad1.a && result != null) {
+            if (gamepad1.a && result != null) {
                 double targetMotorVelocity = velocityToTicks(result.launchSpeed);
 
-                ((com.qualcomm.robotcore.hardware.DcMotorEx) SL).setVelocity(targetMotorVelocity);
-                ((com.qualcomm.robotcore.hardware.DcMotorEx) SR).setVelocity(targetMotorVelocity);
+                SL.setVelocity(targetMotorVelocity);
+                SR.setVelocity(targetMotorVelocity);
             } else {
-                ((com.qualcomm.robotcore.hardware.DcMotorEx) SL).setVelocity(0);
-                ((com.qualcomm.robotcore.hardware.DcMotorEx) SR).setVelocity(0);
-            }*/
+                SL.setVelocity(0);
+                SR.setVelocity(0);
+            }
 
 
 

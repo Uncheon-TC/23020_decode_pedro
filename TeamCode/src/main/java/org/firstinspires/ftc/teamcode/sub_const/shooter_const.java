@@ -21,9 +21,9 @@ public class shooter_const {
     public static double shooter_f = 0;
     public static double SHOOTER_ANGLE_TPR = 537.7;
 
-    public static double flywheel_p;
-    public static double flywheel_i;
-    public static double flywheel_d;
-    public static double flywheel_f;
+    public static double flywheel_p = 250;
+    public static double flywheel_i = 5;
+    public static double flywheel_d = 5;
+    public static double flywheel_f = 0;
 
 }
