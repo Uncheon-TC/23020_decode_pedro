@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.draw;
 import static org.firstinspires.ftc.teamcode.sub_const.pos_const.*;
 import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
 
@@ -39,12 +38,6 @@ import org.firstinspires.ftc.teamcode.sub_const.shooter_const;
 public class red_test extends LinearOpMode {
 
     private TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
-    private FieldManager pfield = PanelsField.INSTANCE.getField();
-    private static final Style robotLook = new Style(
-            "", "#3F51B5", 0.75
-    );
-
-
 
     public static double vel_off = 0.64;
 
@@ -72,7 +65,6 @@ public class red_test extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        pfield.setOffsets(PanelsField.INSTANCE.getPresets().getPEDRO_PATHING());
 
         follower = Constants.createFollower(hardwareMap);
 
@@ -206,6 +198,9 @@ public class red_test extends LinearOpMode {
             }*/
 
 
+            if (gamepad1.dpadLeftWasPressed()) vel_off -= 0.005;
+            if (gamepad1.dpadRightWasPressed()) vel_off += 0.005;
+
 
 
 
@@ -265,7 +260,6 @@ public class red_test extends LinearOpMode {
             ptelemetry.addData("y", follower.getPose().getY());
 
             ptelemetry.update(telemetry);
-            draw();
         }
     }
 
@@ -287,4 +281,6 @@ public class red_test extends LinearOpMode {
         double revsPerSec = velocityInchesPerSec / wheelCircumference;
         return revsPerSec * FLYWHEEL_TPR;
     }
+
+
 }
