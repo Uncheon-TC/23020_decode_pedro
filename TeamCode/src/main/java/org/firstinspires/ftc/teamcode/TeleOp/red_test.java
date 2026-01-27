@@ -5,6 +5,8 @@ import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
 
 import static java.lang.Math.round;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.PIDFController;
 import com.pedropathing.follower.Follower;
@@ -29,6 +31,8 @@ import org.firstinspires.ftc.teamcode.sub_const.shooter_const;
 @TeleOp(name = "decode 23020_RED", group = "2025-2026 Test OP")
 public class red_test extends LinearOpMode {
 
+    private TelemetryManager ptelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+
     private DcMotor FrontLeftMotor, FrontRightMotor, BackLeftMotor, BackRightMotor; //메카넘
     private DcMotor eat, SA;
     private DcMotorEx SL, SR;
@@ -44,6 +48,8 @@ public class red_test extends LinearOpMode {
     private PIDFCoefficients pidfCoefficients;
     private double motor_power;
     private int finalTurretAngle;
+
+    private double targetMotorVelocity;
 
     //GoBildaPinpointDriver odo;
 
@@ -215,7 +221,7 @@ public class red_test extends LinearOpMode {
             }
 
             if (gamepad1.a && result != null) {
-                double targetMotorVelocity = velocityToTicks(result.launchSpeed);
+                targetMotorVelocity = velocityToTicks(result.launchSpeed);
 
                 SL.setVelocity(targetMotorVelocity);
                 SR.setVelocity(targetMotorVelocity);
@@ -226,15 +232,17 @@ public class red_test extends LinearOpMode {
 
 
 
-            telemetry.addData("eat Power", eat.getPower());
-            telemetry.addData("SL Power", SL.getPower());
-            telemetry.addData("SR Power", SR.getPower());
-            telemetry.addData("Servo_S Pos", servo_S.getPosition());
+            ptelemetry.addData("eat Power", eat.getPower());
+            ptelemetry.addData("SL Power", SL.getPower());
+            ptelemetry.addData("SR Power", SR.getPower());
+            ptelemetry.addData("Servo_S Pos", servo_S.getPosition());
             /*telemetry.addData("Heading (deg)",
                     imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));*/
-            telemetry.addData("target encoder", finalTurretAngle);
-            telemetry.addData("current encoder", SA.getCurrentPosition());
-            telemetry.update();
+            ptelemetry.addData("target encoder", finalTurretAngle);
+            ptelemetry.addData("current encoder", SA.getCurrentPosition());
+            ptelemetry.addData("curVelo", SL.getVelocity());
+            ptelemetry.addData("tarVelo", targetMotorVelocity);
+            ptelemetry.update(telemetry);
         }
     }
 

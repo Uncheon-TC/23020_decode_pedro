@@ -49,6 +49,7 @@ public class red_test extends OpMode {
     private PIDFCoefficients pidfCoefficients;
     private double motor_power;
     private int finalTurretAngle;
+    private double targetMotorVelocity;
 
 
 
@@ -210,8 +211,8 @@ public class red_test extends OpMode {
                 if (!follower.isBusy()) {
                     follower.followPath(go2_path);
 
-//                    SL.setVelocity(targetMotorVelocity);
-//                    SR.setVelocity(targetMotorVelocity);
+                    SL.setVelocity(targetMotorVelocity);
+                    SR.setVelocity(targetMotorVelocity);
 
                     setPathState(2);
                 }
