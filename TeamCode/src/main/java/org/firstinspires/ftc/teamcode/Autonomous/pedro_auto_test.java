@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "decode 23020_RED", group = "2025-2026 Test OP")
+@Autonomous(name = "basic_pedro_test", group = "2025-2026 Test OP")
 public class pedro_auto_test extends OpMode {
 
     private TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
