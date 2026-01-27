@@ -212,7 +212,7 @@ public class red_test extends LinearOpMode {
 
                 double offsetTicks = (result.turretOffset / (2 * Math.PI)) * SHOOTER_ANGLE_TPR * (105.0/25.0);
 
-                finalTurretAngle = (int) round(StaticTargetPosTicks + offsetTicks);
+                finalTurretAngle = (int) round(StaticTargetPosTicks/* + offsetTicks*/);
 
                 double clampedAngle = Range.clip(result.hoodAngle, HOOD_MIN_ANGLE, HOOD_MAX_ANGLE);
                 double hood_servo_pos = mapAngleToServo(clampedAngle);
@@ -243,14 +243,7 @@ public class red_test extends LinearOpMode {
 
 
 
-            ptelemetry.addData("eat Power", eat.getPower());
-            ptelemetry.addData("SL Power", SL.getPower());
-            ptelemetry.addData("SR Power", SR.getPower());
-            ptelemetry.addData("Servo_S Pos", servo_S.getPosition());
-            /*telemetry.addData("Heading (deg)",
-                    imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));*/
-            ptelemetry.addData("target encoder", finalTurretAngle);
-            ptelemetry.addData("current encoder", SA.getCurrentPosition());
+
             ptelemetry.addData("curVelo", SL.getVelocity());
             ptelemetry.addData("tarVelo", targetMotorVelocity);
             ptelemetry.addData("curVelo_nonoff", SL.getVelocity()/vel_off);
