@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Autonomous;
 
 import static org.firstinspires.ftc.teamcode.sub_const.pos_const.*;
 import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
-
-
 import static java.lang.Math.round;
 
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -32,13 +30,13 @@ import org.firstinspires.ftc.teamcode.auto_cal.shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.sub_const.servo_pos_const;
 
-@Autonomous(name = "red_test_close", group = "2025-2026 Test_red", preselectTeleOp = "red_test")
-public class red_test extends OpMode {
+@Autonomous(name = "red_test_close_ver2", group = "2025-2026 Test_red", preselectTeleOp = "decode 23020_RED")
+public class red_AUTO_test extends OpMode {
 
     private TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
     private Follower follower;
-    private Timer pathTimer, actionTimer, opmodeTimer;
+    private Timer pathTimer, actionTimer, opmodeTimer, segmentTime;
     private int pathState;
 
 
@@ -51,11 +49,14 @@ public class red_test extends OpMode {
     private double motor_power;
     private int finalTurretAngle;
     private double targetMotorVelocity;
+    private boolean segmentStarted = false;
+
+    private double shooter_power = 0;
 
 
 
-    private Path first_shoot, eat_to_slide, shoot_from_slide;
-    private PathChain eat_shoot1, eat_shoot2;
+    private Path first_shoot, eat_to_slide, shoot_from_slide, eat1, eat2, shoot1, shoot2, open_slide, eat3, shoot3, eat4, shoot4;
+    private PathChain eat_shoot1, eat_shoot2, eat_shoot3, eat_shoot4;
 
 
 
@@ -63,6 +64,7 @@ public class red_test extends OpMode {
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
+        segmentTime = new Timer();
         opmodeTimer.resetTimer();
 
         follower = Constants.createFollower(hardwareMap);
@@ -96,7 +98,9 @@ public class red_test extends OpMode {
         SR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         SL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        SR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        SR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //SR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         SR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -121,7 +125,7 @@ public class red_test extends OpMode {
                 .PIDFCoefficients(flywheel_p, flywheel_i, flywheel_d, flywheel_f);
 
         SL.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, flywheel_pidfCoeffiients);
-        SR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, flywheel_pidfCoeffiients);
+        //SR.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, flywheel_pidfCoeffiients);
 
     }
 
@@ -168,7 +172,8 @@ public class red_test extends OpMode {
             double targetMotorVelocity = velocityToTicks(result.launchSpeed);
 
             SL.setVelocity(targetMotorVelocity*0.64);
-            SR.setVelocity(targetMotorVelocity*0.64);
+            shooter_power = SL.getPower();
+            SR.setPower(shooter_power);
         }
 
 
@@ -181,6 +186,13 @@ public class red_test extends OpMode {
         panelsTelemetry.addData("x", follower.getPose().getX());
         panelsTelemetry.addData("y", follower.getPose().getY());
         panelsTelemetry.addData("path", pathState);
+
+        panelsTelemetry.addData("turret_target", finalTurretAngle);
+        panelsTelemetry.addData("turret_current", SA.getCurrentPosition());
+
+        panelsTelemetry.addData("target_velo", targetMotorVelocity);
+        panelsTelemetry.addData("current_velo", SL.getVelocity());
+        panelsTelemetry.addData("cueent_vele_nonoff", SL.getVelocity()/0.64);
 
         //panelsTelemetry.addData("velo")
 
@@ -199,25 +211,51 @@ public class red_test extends OpMode {
                 , RED_CLOSE_ST_SHOOT.getHeading());
 
 
+
+        eat1 = new Path(new BezierCurve(RED_CLOSE_ST_SHOOT,
+                new Pose(68, 82, 0),
+                RED_CLOSE_EAT1));
+        eat1.setLinearHeadingInterpolation(RED_CLOSE_ST_SHOOT.getHeading()
+                , RED_CLOSE_EAT1.getHeading());
+
+
+
+        shoot1 = new Path(new BezierLine(RED_CLOSE_EAT1, RED_CLOSE_SHOOT1));
+        shoot1.setLinearHeadingInterpolation(RED_CLOSE_EAT1.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+
+
         eat_shoot1 = follower.pathBuilder()
-                .addPath(new BezierCurve(RED_CLOSE_ST_SHOOT,
-                        new Pose(68, 82, 0),
-                        RED_CLOSE_EAT1))
-                .setLinearHeadingInterpolation(RED_CLOSE_ST_SHOOT.getHeading()
-                        , RED_CLOSE_EAT1.getHeading())
-
-                .addPath(new BezierLine(RED_CLOSE_EAT1, RED_CLOSE_SHOOT1))
-                .setLinearHeadingInterpolation(RED_CLOSE_EAT1.getHeading(), RED_CLOSE_SHOOT1.getHeading())
+                .addPath(eat1)
+                .addPath(shoot1)
                 .build();
 
-        eat_shoot2 = follower.pathBuilder()
-                .addPath(new BezierCurve(RED_CLOSE_SHOOT1,
-                        new Pose(72, 57, 0),
-                        RED_CLOSE_EAT2))
-                .setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT2.getHeading())
-                .addPath(new BezierLine(RED_CLOSE_EAT2, RED_CLOSE_SHOOT1))
-                .setLinearHeadingInterpolation(RED_CLOSE_EAT2.getHeading(), RED_CLOSE_SHOOT1.getHeading())
-                .build();
+
+        eat2 = new Path(new BezierCurve(RED_CLOSE_SHOOT1,
+                new Pose(72, 57, 0),
+                RED_CLOSE_EAT2));
+        eat2.setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT2.getHeading());
+
+
+
+        open_slide = new Path(new BezierCurve(RED_CLOSE_EAT2,
+                new Pose(113, 61, 0),
+                RED_CLOSE_SLIDE_OPEN));
+        open_slide.setLinearHeadingInterpolation(RED_CLOSE_EAT2.getHeading(), RED_CLOSE_SLIDE_OPEN.getHeading());
+
+
+
+        shoot2 = new Path(new BezierLine(RED_CLOSE_SLIDE_OPEN, RED_CLOSE_SHOOT1));
+        shoot2.setLinearHeadingInterpolation(RED_CLOSE_SLIDE_OPEN.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+
+
+
+        /*eat_shoot2 = follower.pathBuilder()
+                .addPath(eat2)
+                .addPath(open_slide)
+                .addPath(shoot2)
+                .build();*/
+
+
 
         eat_to_slide = new Path(new BezierCurve(RED_CLOSE_SHOOT1,
                         new Pose(116, 36, 0),
@@ -226,6 +264,32 @@ public class red_test extends OpMode {
 
         shoot_from_slide = new Path(new BezierLine(RED_CLOSE_EAT_SLIDE, RED_CLOSE_SHOOT1));
         shoot_from_slide.setLinearHeadingInterpolation(RED_CLOSE_EAT_SLIDE.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+
+        eat3 = new Path(new BezierCurve(RED_CLOSE_SHOOT1,
+                new Pose(68, 29, 0),
+                RED_CLOSE_EAT3));
+        eat3.setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT3.getHeading());
+
+        shoot3 = new Path(new BezierLine(RED_CLOSE_EAT3, RED_CLOSE_SHOOT1));
+        shoot3.setLinearHeadingInterpolation(RED_CLOSE_EAT3.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+
+        eat_shoot3 = follower.pathBuilder()
+                .addPath(eat3)
+                .addPath(shoot3)
+                .build();
+
+        eat4 = new Path(new BezierCurve(RED_CLOSE_SHOOT1,
+                new Pose(77, 2, 0),
+                RED_CLOSE_EAT4));
+        eat4.setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT4.getHeading());
+
+        shoot4 = new Path(new BezierLine(RED_CLOSE_SHOOT1, RED_CLOSE_EAT4));
+        shoot4.setLinearHeadingInterpolation(RED_CLOSE_EAT4.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+
+        eat_shoot4 = follower.pathBuilder()
+                .addPath(eat4)
+                .addPath(shoot4)
+                .build();
 
 
 
@@ -277,65 +341,102 @@ public class red_test extends OpMode {
                 break;
 
             case 6: //3번경로 시작
-                follower.followPath(eat_shoot2);
+                follower.followPath(eat2);
                 setPathState(7);
                 break;
 
             case 7: //3번경로 이동중
-                if (!follower.isBusy()) { //3번경로 도착
-                    shoot();
+                if (!follower.isBusy()) {  //먹으러 도착
+                    follower.followPath(open_slide); //슬라이드 열러 출발
                     setPathState(8);
                 }
                 break;
 
-            case 8: //3번경로끝 대기
-                if(pathTimer.getElapsedTimeSeconds() >= 1) {
-                    shoot_stop();
+            case 8: //열러가는중
+                if (!follower.isBusy()) { //도착하면
                     setPathState(9);
                 }
                 break;
 
-            case 9: //슬라이더로 출발
-                follower.followPath(eat_to_slide);
-                setPathState(10);
-                break;
-
-            case 10: //슬라이더 이동
-                eat_servo_down();
-                if (!follower.isBusy()) { //슬라이더 도착
-                    setPathState(11);
+            case 9: //열러가서 대기
+                if (pathTimer.getElapsedTimeSeconds() >= 1) {
+                    setPathState(10);
                 }
                 break;
 
-            case 11: //슬라이더 대기
-                if (pathTimer.getElapsedTimeSeconds() >= 2) {
+            case 10: //쏘러 출발
+                follower.followPath(shoot2);
+                setPathState(11);
+                break;
+
+            case 11: //쏘러가는중
+                if (!follower.isBusy()) {//도착하면
+                    shoot();
                     setPathState(12);
                 }
                 break;
 
-            case 12: //쏘러 출발
+            case 12:
+                if (pathTimer.getElapsedTimeSeconds() >= 1) {
+                    setPathState(13);
+                }
+
+            case 13: //쏘러 출발
                 follower.followPath(shoot_from_slide);
                 eat_servo_up();
-                setPathState(13);
+                setPathState(14);
                 break;
 
-            case 13:  //쏘러 가는중
+            case 14:  //쏘러 가는중
                 if (!follower.isBusy()) { //쏘러 도착
+                    eat_servo_down();
                     shoot();
-                    setPathState(14);
-                }
-                break;
-
-            case 14:  //사격지점 대기
-                if (pathTimer.getElapsedTimeSeconds() >= 1) {
-                    shoot_stop();
                     setPathState(15);
                 }
                 break;
 
+            case 15:  //사격지점 대기
+                if (pathTimer.getElapsedTimeSeconds() >= 1) {
+                    shoot_stop();
+                    setPathState(16);
+                }
+                break;
 
-            //case 4:
-             //   if()
+            case 16:
+                follower.followPath(eat_shoot3);
+                setPathState(17);
+                break;
+
+            case 17:
+                if (!follower.isBusy()) {
+                    follower.setPose(new Pose(82, 86, 0));
+                    shoot();
+                    setPathState(18);
+                }
+                break;
+
+            case 18:
+                if (pathTimer.getElapsedTimeSeconds() >= 1) {
+                    shoot_stop();
+                    setPathState(19);
+                }
+                break;
+
+            case 19:
+                follower.followPath(eat_shoot4);
+                eat_servo_up();
+                setPathState(20);
+                break;
+
+            case 20:
+                if (!follower.isBusy()) {
+                    eat_servo_down();
+                    shoot();
+                    setPathState(21);
+                }
+                break;
+
+            //case 21:
 
         }
     }

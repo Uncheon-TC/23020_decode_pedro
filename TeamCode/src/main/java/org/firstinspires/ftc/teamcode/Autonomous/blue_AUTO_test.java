@@ -30,8 +30,8 @@ import org.firstinspires.ftc.teamcode.auto_cal.shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.sub_const.servo_pos_const;
 
-@Autonomous(name = "red_test_close_ver2", group = "2025-2026 Test_red", preselectTeleOp = "red_test")
-public class red_test_ver2 extends OpMode {
+@Autonomous(name = "blue_test_close_ver2", group = "2025-2026 Test_blue", preselectTeleOp = "decode 23020_BLUE")
+public class blue_AUTO_test extends OpMode {
 
     private TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
@@ -69,7 +69,7 @@ public class red_test_ver2 extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
-        follower.setStartingPose(RED_CLOSE_START);
+        follower.setStartingPose(BLUE_CLOSE_START);
 
         //////////////////////////////////////////
 
@@ -146,10 +146,10 @@ public class red_test_ver2 extends OpMode {
         autonomousPathUpdate();
 
 
-        shooter.ShotResult result = shooter.calculateShot(current_robot_pos, RED_GOAL, SCORE_HEIGHT, current_robot_vel, SCORE_ANGLE);
+        shooter.ShotResult result = shooter.calculateShot(current_robot_pos, BLUE_GOAL, SCORE_HEIGHT, current_robot_vel, SCORE_ANGLE);
         if (result != null) {
 
-            double StaticTargetPosTicks = tracking.fix_to_goal_RED(current_robot_pos);
+            double StaticTargetPosTicks = tracking.fix_to_goal_BLUE(current_robot_pos);
 
             double offsetTicks = (result.turretOffset / (2 * Math.PI)) * SHOOTER_ANGLE_TPR * (105.0/25.0);
 
@@ -206,22 +206,22 @@ public class red_test_ver2 extends OpMode {
 //        go1_path = new Path(new BezierLine(startPose, middlePose));
 //        go1_path.setLinearHeadingInterpolation(startPose.getHeading(), middlePose.getHeading());
 
-        first_shoot = new Path(new BezierLine(RED_CLOSE_START, RED_CLOSE_ST_SHOOT));
-        first_shoot.setLinearHeadingInterpolation(RED_CLOSE_START.getHeading()
-                , RED_CLOSE_ST_SHOOT.getHeading());
+        first_shoot = new Path(new BezierLine(BLUE_CLOSE_START, BLUE_CLOSE_ST_SHOOT));
+        first_shoot.setLinearHeadingInterpolation(BLUE_CLOSE_START.getHeading()
+                , BLUE_CLOSE_ST_SHOOT.getHeading());
 
 
 
-        eat1 = new Path(new BezierCurve(RED_CLOSE_ST_SHOOT,
+        eat1 = new Path(new BezierCurve(BLUE_CLOSE_ST_SHOOT,
                 new Pose(68, 82, 0),
-                RED_CLOSE_EAT1));
-        eat1.setLinearHeadingInterpolation(RED_CLOSE_ST_SHOOT.getHeading()
-                , RED_CLOSE_EAT1.getHeading());
+                BLUE_CLOSE_EAT1));
+        eat1.setLinearHeadingInterpolation(BLUE_CLOSE_ST_SHOOT.getHeading()
+                , BLUE_CLOSE_EAT1.getHeading());
 
 
 
-        shoot1 = new Path(new BezierLine(RED_CLOSE_EAT1, RED_CLOSE_SHOOT1));
-        shoot1.setLinearHeadingInterpolation(RED_CLOSE_EAT1.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+        shoot1 = new Path(new BezierLine(BLUE_CLOSE_EAT1, BLUE_CLOSE_SHOOT1));
+        shoot1.setLinearHeadingInterpolation(BLUE_CLOSE_EAT1.getHeading(), BLUE_CLOSE_SHOOT1.getHeading());
 
 
         eat_shoot1 = follower.pathBuilder()
@@ -230,22 +230,22 @@ public class red_test_ver2 extends OpMode {
                 .build();
 
 
-        eat2 = new Path(new BezierCurve(RED_CLOSE_SHOOT1,
+        eat2 = new Path(new BezierCurve(BLUE_CLOSE_SHOOT1,
                 new Pose(72, 57, 0),
-                RED_CLOSE_EAT2));
-        eat2.setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT2.getHeading());
+                BLUE_CLOSE_EAT2));
+        eat2.setLinearHeadingInterpolation(BLUE_CLOSE_SHOOT1.getHeading(), BLUE_CLOSE_EAT2.getHeading());
 
 
 
-        open_slide = new Path(new BezierCurve(RED_CLOSE_EAT2,
+        open_slide = new Path(new BezierCurve(BLUE_CLOSE_EAT2,
                 new Pose(113, 61, 0),
-                RED_CLOSE_SLIDE_OPEN));
-        open_slide.setLinearHeadingInterpolation(RED_CLOSE_EAT2.getHeading(), RED_CLOSE_SLIDE_OPEN.getHeading());
+                BLUE_CLOSE_SLIDE_OPEN));
+        open_slide.setLinearHeadingInterpolation(BLUE_CLOSE_EAT2.getHeading(), BLUE_CLOSE_SLIDE_OPEN.getHeading());
 
 
 
-        shoot2 = new Path(new BezierLine(RED_CLOSE_SLIDE_OPEN, RED_CLOSE_SHOOT1));
-        shoot2.setLinearHeadingInterpolation(RED_CLOSE_SLIDE_OPEN.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+        shoot2 = new Path(new BezierLine(BLUE_CLOSE_SLIDE_OPEN, BLUE_CLOSE_SHOOT1));
+        shoot2.setLinearHeadingInterpolation(BLUE_CLOSE_SLIDE_OPEN.getHeading(), BLUE_CLOSE_SHOOT1.getHeading());
 
 
 
@@ -257,34 +257,34 @@ public class red_test_ver2 extends OpMode {
 
 
 
-        eat_to_slide = new Path(new BezierCurve(RED_CLOSE_SHOOT1,
+        eat_to_slide = new Path(new BezierCurve(BLUE_CLOSE_SHOOT1,
                         new Pose(116, 36, 0),
-                        RED_CLOSE_EAT_SLIDE));
-        eat_to_slide.setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT_SLIDE.getHeading());
+                BLUE_CLOSE_EAT_SLIDE));
+        eat_to_slide.setLinearHeadingInterpolation(BLUE_CLOSE_SHOOT1.getHeading(), BLUE_CLOSE_EAT_SLIDE.getHeading());
 
-        shoot_from_slide = new Path(new BezierLine(RED_CLOSE_EAT_SLIDE, RED_CLOSE_SHOOT1));
-        shoot_from_slide.setLinearHeadingInterpolation(RED_CLOSE_EAT_SLIDE.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+        shoot_from_slide = new Path(new BezierLine(BLUE_CLOSE_EAT_SLIDE, BLUE_CLOSE_SHOOT1));
+        shoot_from_slide.setLinearHeadingInterpolation(BLUE_CLOSE_EAT_SLIDE.getHeading(), BLUE_CLOSE_SHOOT1.getHeading());
 
-        eat3 = new Path(new BezierCurve(RED_CLOSE_SHOOT1,
+        eat3 = new Path(new BezierCurve(BLUE_CLOSE_SHOOT1,
                 new Pose(68, 29, 0),
-                RED_CLOSE_EAT3));
-        eat3.setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT3.getHeading());
+                BLUE_CLOSE_EAT3));
+        eat3.setLinearHeadingInterpolation(BLUE_CLOSE_SHOOT1.getHeading(), BLUE_CLOSE_EAT3.getHeading());
 
-        shoot3 = new Path(new BezierLine(RED_CLOSE_EAT3, RED_CLOSE_SHOOT1));
-        shoot3.setLinearHeadingInterpolation(RED_CLOSE_EAT3.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+        shoot3 = new Path(new BezierLine(BLUE_CLOSE_EAT3, BLUE_CLOSE_SHOOT1));
+        shoot3.setLinearHeadingInterpolation(BLUE_CLOSE_EAT3.getHeading(), BLUE_CLOSE_SHOOT1.getHeading());
 
         eat_shoot3 = follower.pathBuilder()
                 .addPath(eat3)
                 .addPath(shoot3)
                 .build();
 
-        eat4 = new Path(new BezierCurve(RED_CLOSE_SHOOT1,
+        eat4 = new Path(new BezierCurve(BLUE_CLOSE_SHOOT1,
                 new Pose(77, 2, 0),
-                RED_CLOSE_EAT4));
-        eat4.setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT4.getHeading());
+                BLUE_CLOSE_EAT4));
+        eat4.setLinearHeadingInterpolation(BLUE_CLOSE_SHOOT1.getHeading(), BLUE_CLOSE_EAT4.getHeading());
 
-        shoot4 = new Path(new BezierLine(RED_CLOSE_SHOOT1, RED_CLOSE_EAT4));
-        shoot4.setLinearHeadingInterpolation(RED_CLOSE_EAT4.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+        shoot4 = new Path(new BezierLine(BLUE_CLOSE_SHOOT1, BLUE_CLOSE_EAT4));
+        shoot4.setLinearHeadingInterpolation(BLUE_CLOSE_EAT4.getHeading(), BLUE_CLOSE_SHOOT1.getHeading());
 
         eat_shoot4 = follower.pathBuilder()
                 .addPath(eat4)
