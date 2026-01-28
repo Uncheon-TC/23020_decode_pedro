@@ -283,7 +283,7 @@ public class red_AUTO_test extends OpMode {
                 RED_CLOSE_EAT4));
         eat4.setLinearHeadingInterpolation(RED_CLOSE_SHOOT1.getHeading(), RED_CLOSE_EAT4.getHeading());
 
-        shoot4 = new Path(new BezierLine(RED_CLOSE_SHOOT1, RED_CLOSE_EAT4));
+        shoot4 = new Path(new BezierLine(RED_CLOSE_EAT4, RED_CLOSE_SHOOT1));
         shoot4.setLinearHeadingInterpolation(RED_CLOSE_EAT4.getHeading(), RED_CLOSE_SHOOT1.getHeading());
 
         eat_shoot4 = follower.pathBuilder()
