@@ -67,7 +67,7 @@ public class red_teleOp_test extends LinearOpMode {
         follower = Constants.createFollower(hardwareMap);
 
         //follower.setStartingPose(startPose);
-        follower.setStartingPose(follower.getPose());
+        follower.setStartingPose(new Pose(82, 86, 0));
 
 
         pidfCoefficients = new PIDFCoefficients(shooter_p, shooter_i, shooter_d, shooter_f);
@@ -99,7 +99,7 @@ public class red_teleOp_test extends LinearOpMode {
         SR.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-        SA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //SA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         SA.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         SA.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -200,8 +200,8 @@ public class red_teleOp_test extends LinearOpMode {
             if (gamepad1.dpadDownWasPressed()) vel_off -= 0.005;
             if (gamepad1.dpadUpWasPressed()) vel_off += 0.005;
 
-            if (gamepad1.dpadRightWasPressed()) turret_off += 3;
-            if (gamepad1.dpadLeftWasPressed()) turret_off -= 3;
+            if (gamepad1.dpadRightWasPressed()) turret_off += 6;
+            if (gamepad1.dpadLeftWasPressed()) turret_off -= 6;
 
 
 

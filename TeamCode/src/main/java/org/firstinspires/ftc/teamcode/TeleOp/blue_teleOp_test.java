@@ -1,7 +1,23 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.teamcode.sub_const.pos_const.*;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_GOAL;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.FLYWHEEL_TPR;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MAX_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MIN_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MAX;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MIN;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_HEIGHT;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SHOOTER_ANGLE_TPR;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.WHEEL_RADIUS;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_d;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_f;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_i;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_p;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_d;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_f;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_i;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_p;
 import static java.lang.Math.round;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -35,6 +51,7 @@ public class blue_teleOp_test extends LinearOpMode {
 
 
     public static double vel_off = 0.64;
+    public static double turret_off = 0;
 
     private DcMotor FrontLeftMotor, FrontRightMotor, BackLeftMotor, BackRightMotor; //메카넘
     private DcMotor eat, SA;
@@ -63,7 +80,9 @@ public class blue_teleOp_test extends LinearOpMode {
 
         follower = Constants.createFollower(hardwareMap);
 
-        follower.setStartingPose(startPose);
+        //follower.setStartingPose(startPose);
+        follower.setStartingPose(new Pose(82, 86, 0).mirror());
+
 
         pidfCoefficients = new PIDFCoefficients(shooter_p, shooter_i, shooter_d, shooter_f);
         controller = new PIDFController(pidfCoefficients);
@@ -94,7 +113,7 @@ public class blue_teleOp_test extends LinearOpMode {
         SR.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
-        SA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //SA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         SA.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         SA.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -192,8 +211,11 @@ public class blue_teleOp_test extends LinearOpMode {
                 eat.setPower(0);
             }*/
 
-            if (gamepad1.dpadLeftWasPressed()) vel_off -= 0.005;
-            if (gamepad1.dpadRightWasPressed()) vel_off += 0.005;
+            if (gamepad1.dpadDownWasPressed()) vel_off -= 0.005;
+            if (gamepad1.dpadUpWasPressed()) vel_off += 0.005;
+
+            if (gamepad1.dpadRightWasPressed()) turret_off += 6;
+            if (gamepad1.dpadLeftWasPressed()) turret_off -= 6;
 
 
 
@@ -206,7 +228,7 @@ public class blue_teleOp_test extends LinearOpMode {
 
                 double offsetTicks = (result.turretOffset / (2 * Math.PI)) * SHOOTER_ANGLE_TPR * (105.0/25.0);
 
-                finalTurretAngle = (int) round(StaticTargetPosTicks/* - offsetTicks*/);
+                finalTurretAngle = (int) round(StaticTargetPosTicks/* - offsetTicks*/ - turret_off);
 
                 double clampedAngle = Range.clip(result.hoodAngle, HOOD_MIN_ANGLE, HOOD_MAX_ANGLE);
                 double hood_servo_pos = mapAngleToServo(clampedAngle);
