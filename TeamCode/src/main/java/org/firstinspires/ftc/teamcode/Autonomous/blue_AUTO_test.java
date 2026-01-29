@@ -1,8 +1,39 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 
-import static org.firstinspires.ftc.teamcode.sub_const.pos_const.*;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT1;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT1_CP;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT2;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT2_CP;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT3;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT3_CP;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT4;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT4_CP;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT_SLIDE;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_EAT_SLIDE_CP;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_SHOOT1;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_SLIDE_OPEN;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_SLIDE_OPEN_CP;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_START;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_CLOSE_ST_SHOOT;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_GOAL;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.FLYWHEEL_TPR;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MAX_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MIN_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MAX;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MIN;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_ANGLE;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_HEIGHT;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SHOOTER_ANGLE_TPR;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.WHEEL_RADIUS;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_d;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_f;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_i;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_p;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_d;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_f;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_i;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_p;
 import static java.lang.Math.round;
 
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -28,9 +59,10 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.auto_cal.Turret_Tracking;
 import org.firstinspires.ftc.teamcode.auto_cal.shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.sub_const.pos_const;
 import org.firstinspires.ftc.teamcode.sub_const.servo_pos_const;
 
-@Autonomous(name = "blue_test_close_ver2", group = "2025-2026 Test_auto", preselectTeleOp = "decode 23020_BLUE")
+@Autonomous(name = "BLUE_test_close_ver2", group = "2025-2026 Test_auto", preselectTeleOp = "decode 23020_BLUE")
 public class blue_AUTO_test extends OpMode {
 
     private TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -177,9 +209,7 @@ public class blue_AUTO_test extends OpMode {
         }
 
 
-
-
-
+        pos_const.savedAutoPose = follower.getPose();
 
 
 
@@ -220,7 +250,7 @@ public class blue_AUTO_test extends OpMode {
 
 
 
-        shoot1 = new Path(new BezierLine(BLUE_CLOSE_EAT1, BLUE_CLOSE_SHOOT1));
+        shoot1 = new Path(new BezierLine(BLUE_CLOSE_EAT1,BLUE_CLOSE_SHOOT1));
         shoot1.setLinearHeadingInterpolation(BLUE_CLOSE_EAT1.getHeading(), BLUE_CLOSE_SHOOT1.getHeading());
 
 
@@ -258,8 +288,8 @@ public class blue_AUTO_test extends OpMode {
 
 
         eat_to_slide = new Path(new BezierCurve(BLUE_CLOSE_SHOOT1,
-                        BLUE_CLOSE_EAT_SLIDE_CP,
-                        BLUE_CLOSE_EAT_SLIDE));
+                BLUE_CLOSE_EAT_SLIDE_CP,
+                BLUE_CLOSE_EAT_SLIDE));
         eat_to_slide.setLinearHeadingInterpolation(BLUE_CLOSE_SHOOT1.getHeading(), BLUE_CLOSE_EAT_SLIDE.getHeading());
 
         shoot_from_slide = new Path(new BezierLine(BLUE_CLOSE_EAT_SLIDE, BLUE_CLOSE_SHOOT1));
@@ -271,7 +301,7 @@ public class blue_AUTO_test extends OpMode {
         eat3.setLinearHeadingInterpolation(BLUE_CLOSE_SHOOT1.getHeading(), BLUE_CLOSE_EAT3.getHeading());
 
         shoot3 = new Path(new BezierLine(BLUE_CLOSE_EAT3, BLUE_CLOSE_SHOOT1));
-        //shoot3.setLinearHeadingInterpolation(BLUE_CLOSE_EAT3.getHeading(), BLUE_CLOSE_SHOOT1.getHeading());
+        //shoot3.setLinearHeadingInterpolation(RED_CLOSE_EAT3.getHeading(), RED_CLOSE_SHOOT1.getHeading());
         shoot3.setTangentHeadingInterpolation();
 
         eat_shoot3 = follower.pathBuilder()
@@ -282,14 +312,15 @@ public class blue_AUTO_test extends OpMode {
         eat4 = new Path(new BezierCurve(BLUE_CLOSE_SHOOT1,
                 BLUE_CLOSE_EAT4_CP,
                 BLUE_CLOSE_EAT4));
-        //eat4.setLinearHeadingInterpolation(BLUE_CLOSE_SHOOT1.getHeading(), BLUE_CLOSE_EAT4.getHeading());
-        eat4.setTangentHeadingInterpolation();
+        eat4.setConstantHeadingInterpolation(Math.toRadians(270));   //이동시 수정필요 아닌가??
+        //eat4.setTangentHeadingInterpolation();
 
         shoot4 = new Path(new BezierCurve(BLUE_CLOSE_EAT4,
                 BLUE_CLOSE_EAT4_CP,
                 BLUE_CLOSE_SHOOT1));
-        //shoot4.setLinearHeadingInterpolation(BLUE_CLOSE_EAT4.getHeading(), BLUE_CLOSE_SHOOT1.getHeading());
-        shoot4.setTangentHeadingInterpolation();
+        //shoot4.setLinearHeadingInterpolation(RED_CLOSE_EAT4.getHeading(), RED_CLOSE_SHOOT1.getHeading());
+        //shoot4.setTangentHeadingInterpolation();
+        shoot4.setConstantHeadingInterpolation(Math.toRadians(270));  //이동시 수정필요 아닌가??
 
         eat_shoot4 = follower.pathBuilder()
                 .addPath(eat4)
@@ -414,7 +445,7 @@ public class blue_AUTO_test extends OpMode {
 
             case 17:
                 if (!follower.isBusy()) {
-                    follower.setPose(new Pose(62, 86, follower.getHeading()));
+                    follower.setPose(new Pose(62, 86, follower.getHeading()));  //이동시 수정필요
                     shoot();
                     setPathState(18);
                 }
@@ -455,7 +486,7 @@ public class blue_AUTO_test extends OpMode {
 
             case 23:
                 if (!follower.isBusy()) {
-                    follower.setPose(new Pose(62, 86, follower.getHeading()));
+                    follower.setPose(new Pose(62, 86, follower.getHeading())); //이동시 수정필요
                     eat_servo_down();
                     shoot();
                     setPathState(24);

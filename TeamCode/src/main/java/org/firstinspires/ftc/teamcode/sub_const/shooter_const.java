@@ -17,9 +17,9 @@ public class shooter_const {
     public static double WHEEL_RADIUS = 1.89;
 
     //pid const
-    public static double shooter_p = 0.025;
+    public static double shooter_p = 0.05;
     public static double shooter_i = 0;
-    public static double shooter_d = 0.00002;
+    public static double shooter_d = 0.0007;
     public static double shooter_f = 0;
     public static double SHOOTER_ANGLE_TPR = 537.7;
 

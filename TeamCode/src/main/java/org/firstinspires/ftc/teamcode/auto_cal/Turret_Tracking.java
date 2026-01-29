@@ -43,7 +43,7 @@ public class Turret_Tracking {
 
         double ticks = (Rad / (2 * Math.PI)) * SHOOTER_ANGLE_TPR * GEAR_RATIO;
 
-        return (int) ticks;
+        return (int) Math.round(ticks);
     }
 
 }

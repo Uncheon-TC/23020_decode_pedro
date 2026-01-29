@@ -1,23 +1,8 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import static org.firstinspires.ftc.teamcode.sub_const.pos_const.BLUE_GOAL;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.FLYWHEEL_TPR;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MAX_ANGLE;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_MIN_ANGLE;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MAX;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.HOOD_SERVO_MIN;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_ANGLE;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SCORE_HEIGHT;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.SHOOTER_ANGLE_TPR;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.WHEEL_RADIUS;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_d;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_f;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_i;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.flywheel_p;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_d;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_f;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_i;
-import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.shooter_p;
+import static org.firstinspires.ftc.teamcode.sub_const.pos_const.*;
+import static org.firstinspires.ftc.teamcode.sub_const.shooter_const.*;
+
 import static java.lang.Math.round;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -36,9 +21,11 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.auto_cal.Turret_Tracking;
 import org.firstinspires.ftc.teamcode.auto_cal.shooter;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
+import org.firstinspires.ftc.teamcode.auto_cal.Turret_Tracking;
+import org.firstinspires.ftc.teamcode.sub_const.pos_const;
 import org.firstinspires.ftc.teamcode.sub_const.servo_pos_const;
 
 @Configurable
@@ -52,6 +39,7 @@ public class blue_teleOp_test extends LinearOpMode {
 
     public static double vel_off = 0.64;
     public static double turret_off = 0;
+    public static double off_changed = 0;
 
     private DcMotor FrontLeftMotor, FrontRightMotor, BackLeftMotor, BackRightMotor; //메카넘
     private DcMotor eat, SA;
@@ -72,6 +60,8 @@ public class blue_teleOp_test extends LinearOpMode {
     private double targetMotorVelocity;
     private double shooter_power;
 
+    private int shooter_status = 0;
+
     //GoBildaPinpointDriver odo;
 
 
@@ -81,7 +71,7 @@ public class blue_teleOp_test extends LinearOpMode {
         follower = Constants.createFollower(hardwareMap);
 
         //follower.setStartingPose(startPose);
-        follower.setStartingPose(new Pose(82, 86, 0).mirror());
+        follower.setStartingPose(new Pose(72, 72, Math.toRadians(90)));
 
 
         pidfCoefficients = new PIDFCoefficients(shooter_p, shooter_i, shooter_d, shooter_f);
@@ -158,6 +148,8 @@ public class blue_teleOp_test extends LinearOpMode {
 
             follower.update(); //current robot pose update
 
+            if (gamepad1.backWasPressed()) follower.setPose(savedAutoPose);
+
 
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
@@ -196,7 +188,7 @@ public class blue_teleOp_test extends LinearOpMode {
                 eat.setPower(1);
             } else {
                 servo_S.setPosition(servo_pos_const.servo_shoot_block);
-                eat.setPower(0);
+                //eat.setPower(0);
             }
 
             if (gamepad1.x) eat.setPower(1);
@@ -211,11 +203,28 @@ public class blue_teleOp_test extends LinearOpMode {
                 eat.setPower(0);
             }*/
 
-            if (gamepad1.dpadDownWasPressed()) vel_off -= 0.005;
+            /*if (gamepad1.dpadDownWasPressed()) vel_off -= 0.005;
             if (gamepad1.dpadUpWasPressed()) vel_off += 0.005;
 
             if (gamepad1.dpadRightWasPressed()) turret_off += 6;
-            if (gamepad1.dpadLeftWasPressed()) turret_off -= 6;
+            if (gamepad1.dpadLeftWasPressed()) turret_off -= 6;*/
+
+            if (gamepad2.dpadDownWasPressed()) vel_off -= 0.005;
+            if (gamepad2.dpadUpWasPressed()) vel_off += 0.005;
+
+            if (gamepad2.dpadRightWasPressed()) {
+                turret_off += 31;
+            }
+
+            if (gamepad2.dpadLeftWasPressed()) {
+                turret_off -= 31;
+            }
+
+            /*if (gamepad2.aWasPressed()) {
+                SA.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                SA.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }*/
+
 
 
 
@@ -247,15 +256,35 @@ public class blue_teleOp_test extends LinearOpMode {
 
             }
 
-            if (gamepad1.a && result != null) {
-                targetMotorVelocity = velocityToTicks(result.launchSpeed);
+//            if (gamepad1.a && result != null) {
+//                targetMotorVelocity = velocityToTicks(result.launchSpeed);
+//
+//                SL.setVelocity(targetMotorVelocity*vel_off);
+//                shooter_power = SL.getPower();
+//                SR.setPower(shooter_power);
+//            } else {
+//                SL.setVelocity(0);
+//                SR.setVelocity(0);
+//            }
 
-                SL.setVelocity(targetMotorVelocity*vel_off);
-                shooter_power = SL.getPower();
-                SR.setPower(shooter_power);
-            } else {
-                SL.setVelocity(0);
-                SR.setVelocity(0);
+            if (result != null) {
+                switch (shooter_status) {
+                    case 0:
+                        SL.setVelocity(0);
+                        SR.setVelocity(0);
+                        if (gamepad1.aWasPressed()) shooter_status = 1;
+                        break;
+
+                    case 1:
+                        targetMotorVelocity = velocityToTicks(result.launchSpeed);
+
+                        SL.setVelocity(targetMotorVelocity*vel_off);
+                        shooter_power = SL.getPower();
+                        SR.setPower(shooter_power);
+
+                        if (gamepad1.bWasPressed()) shooter_status = 0;
+                        break;
+                }
             }
 
 
@@ -272,7 +301,10 @@ public class blue_teleOp_test extends LinearOpMode {
             ptelemetry.addData("turret_target_angle", tracking.getTargetHeading(follower.getPose()));
             ptelemetry.addData("turret_current_angle", SA.getCurrentPosition() * 360 / (537.7 * (105.0 / 25.0)));
 
-                    //1도 틱 = (한바퀴 틱 / 360)
+            ptelemetry.addData("turret_off", turret_off);
+            ptelemetry.addData("pos_off", turret_off * 360 / (537.7 * (105.0 / 25.0)));
+
+            //1도 틱 = (한바퀴 틱 / 360)
 
             ptelemetry.update(telemetry);
 
